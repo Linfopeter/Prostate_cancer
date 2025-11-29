@@ -1,0 +1,36 @@
+
+ENST00000372966.8
+           120                                                                                                 202
+             |                                                                                                 |
+5'-GCU...CAGA      ----   ------  A--  AA      A      AA  A    -     AAUCCGGAUU    A       CUG      A---  AG    CCAA...UGA-3'
+             CCCUGC    GCU      GG   CA  UGUUCC UUCCUG  GG CCUC UCCAG          GCUG AUCUUCC   UUGCCU    GA  GGCU
+             ||||||    |||      ||   ||  ||:||| ||||||  || |||| ||||:          :||| +++++++   ||:|||    ||  ||||
+             GGGACG    CGA      CC   GU  ACGAGG AAGGAC  CC GGAG AGGUU          UGAC UAGAAGG   AAUGGA    CU  CCGA
+3'-GUU...GAAA      UAUA   AGACUA  ACA  AG      -      A-  -    U     ----------    A       A--      AGGA  CA    UAAU...AAC-5'
+             |                                                                                                 |
+          1431                                                                                                 1348
+TCONS_00129676
+
+interaction seq1   = 120..202
+interaction seq2   = 1348..1431
+
+interaction energy = -31.57 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -72.1
+  + E(dangleLeft)  = -0.65
+  + E(dangleRight) = -0.46
+  + E(endLeft)     = 0
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -68.61
+  + ED(seq1)       = 19.94
+    : Pu(seq1)     = 8.89504e-15
+  + ED(seq2)       = 17.1
+    : Pu(seq2)     = 8.92016e-13
+
+seed seq1   = 178..184
+seed seq2   = 1367..1373
+seed energy = -5.61
+seed ED1    = 2
+seed ED2    = 1.5
+seed Pu1    = 0.0389661
+seed Pu2    = 0.0877031

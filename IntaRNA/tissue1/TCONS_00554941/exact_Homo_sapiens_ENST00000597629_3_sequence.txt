@@ -1,0 +1,36 @@
+
+ENST00000597629.3
+           682                                                                                                                                              806
+             |                                                                                                                                              |
+5'-AGC...CCCU    -  CA   CCUUCUC    -  CA   C-   ACCACCACC     -    U      U ------  C-    G        GC    --  -       CC-----     CUCGAAGAGA   CACC   GU     GCCC...UAA-3'
+             GUCC UC  GCU       GCCC UC  GCU  CCC         UGGGG ACCU CCACUG C      AC  CUCU CCUUCUCU  UGCC  CC UGGCACC       CCUGG          CCC    CCA  CUGUU
+             :||| ||  ||:       |||| ||  :||  |||         |||:| |||| |||||: |      ||  |||| ++++++++  ||||  || +++++++       |||||          |||    |||  |||||
+             UAGG AG  CGG       CGGG AG  UGA  GGG         ACCUC UGGA GGUGAU G      UG  GAGA GGAAGAGG  ACGG  GG ACUGUGG       GGACC          GGG    GGU  GACAA
+3'-GUU...UUUU    U  AC   UAAAAAC    U  AA   AC   AGA------     G    C      - AAUGAA  AU    -        A-    AA  U       UACGACA     AAA-------   AGAA   GU     ACUG...AAA-5'
+             |                                                                                                                                              |
+          1309                                                                                                                                              1182
+TCONS_00554941
+
+interaction seq1   = 682..806
+interaction seq2   = 1182..1309
+
+interaction energy = -34.91 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -92.8
+  + E(dangleLeft)  = -0.38
+  + E(dangleRight) = -0.23
+  + E(endLeft)     = 0.5
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -88.31
+  + ED(seq1)       = 26.54
+    : Pu(seq1)     = 1.98799e-19
+  + ED(seq2)       = 26.86
+    : Pu(seq2)     = 1.18284e-19
+
+seed seq1   = 750..756 | 751..757 | 766..772
+seed seq2   = 1232..1238 | 1231..1237 | 1214..1220
+seed energy = -9.15 | -6.74 | -1.63
+seed ED1    = 1.35 | 1.03 | 3.52
+seed ED2    = 0.51 | 0.49 | 4.33
+seed Pu1    = 0.11187 | 0.18802 | 0.00330833
+seed Pu2    = 0.437145 | 0.451563 | 0.000888868

@@ -1,0 +1,338 @@
+## =======================
+## scanMiR — Robust (Sites: IHW) + (Pairs: ACAT in-base R / HMP) + BB — PNG/PDF
+## =======================
+
+if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager")
+
+## BioC core
+bio_pkgs <- c("scanMiR","scanMiRData","Biostrings","GenomicRanges","BiocParallel")
+for (p in bio_pkgs) if (!requireNamespace(p, quietly=TRUE))
+  BiocManager::install(p, update=FALSE, ask=FALSE)
+
+## CRAN extras (sin ACAT)
+cran_pkgs <- c("data.table","ggplot2","pheatmap","matrixStats","metap","qvalue","IHW","svglite","harmonicmeanp")
+for (p in cran_pkgs) if (!requireNamespace(p, quietly=TRUE))
+  install.packages(p)
+
+suppressPackageStartupMessages({
+  library(scanMiR); library(scanMiRData); library(Biostrings); library(GenomicRanges)
+  library(BiocParallel); library(data.table); library(ggplot2); library(pheatmap)
+  library(matrixStats); library(metap); library(qvalue); library(IHW)
+  library(harmonicmeanp)
+})
+
+## =======================
+## Parámetros
+## =======================
+# setwd("./tissue1")                                 # <-- ajusta si procede
+FASTA_IN    <- "lncrnas_pbmcs.fasta"
+SPECIES     <- "hsa"
+N_WORKERS   <- 22
+ALPHA       <- 0.05
+CHUNK_SIZE  <- 200
+OUTDIR      <- "scanmir_out"; dir.create(OUTDIR, showWarnings=FALSE, recursive=TRUE)
+vizdir      <- file.path(OUTDIR, "plots"); dir.create(vizdir, showWarnings=FALSE)
+
+## Conmutadores
+USE_IHW_SITES       <- TRUE     # TRUE=IHW por posición relativa; FALSE=BH estratificado (7/8mer)
+ADJUST_PAIRS_WITH   <- "BH"     # "BH" recomendado; "BY" más conservador
+PAIR_COMB_METHOD    <- "ACAT"   # "ACAT" (implementación propia) | "HMP"
+DO_PERMUTATION      <- FALSE    # p-val empíricos extra por par (costoso)
+B_PERM              <- 200
+
+## Temp local (Windows)
+if (.Platform$OS.type == "windows") {
+  if (!dir.exists("C:/tmp")) dir.create("C:/tmp", showWarnings=FALSE)
+  Sys.setenv(TMPDIR="C:/tmp")
+}
+
+## =======================
+## Paralelismo PSOCK
+## =======================
+BPP <- SnowParam(workers = N_WORKERS, type = "SOCK",
+                 progressbar = TRUE, RNGseed = 1, stop.on.error = FALSE, timeout = 1e7)
+register(BPP, default = TRUE); bpstart(BPP)
+message(sprintf("[scanMiR] PSOCK online con %d workers.", bpworkers(bpparam())))
+invisible(try({
+  pids <- bplapply(1:max(4, min(8, N_WORKERS)), function(i) Sys.getpid())
+  message(sprintf("[check] workers únicos detectados: %d", length(unique(unlist(pids)))))
+}, silent=TRUE))
+
+## =======================
+## 1) FASTA (U->T) y nombres únicos
+## =======================
+tx <- readDNAStringSet(FASTA_IN)
+tx_chr <- as.character(tx)
+if (any(grepl("U", tx_chr, fixed=TRUE))) { tx_chr <- chartr("U","T", tx_chr); tx <- DNAStringSet(tx_chr) }
+names(tx) <- make.unique(names(tx))
+stopifnot(length(tx) > 0)
+tx_width <- setNames(width(tx), names(tx))
+
+## =======================
+## 2) Modelos Kd
+## =======================
+kmods <- getKdModels(SPECIES)
+stopifnot(length(kmods) > 0)
+mi_names <- names(kmods)
+
+## =======================
+## 3) Escaneo paralelo por chunks
+## =======================
+split_idx   <- split(seq_along(mi_names), ceiling(seq_along(mi_names) / CHUNK_SIZE))
+seed_chunks <- lapply(split_idx, function(idxs) kmods[ mi_names[idxs] ])
+message(sprintf("[scan] %d miRNAs en %d chunks de ~%d c/u", length(mi_names), length(seed_chunks), CHUNK_SIZE))
+
+chunk_fun <- function(seeds_sub, tx_obj) {
+  suppressPackageStartupMessages(library(scanMiR))
+  findSeedMatches(seqs = tx_obj, seeds = seeds_sub, useTmpFiles = TRUE)
+}
+hits_list <- bplapply(seed_chunks, chunk_fun, tx_obj = tx)
+
+## Combinar resultados
+stopifnot(length(hits_list) > 0)
+lens <- vapply(hits_list, function(x) if (is(x, "GRanges")) length(x) else 0L, integer(1))
+message(sprintf("[combine] chunks con ≥1 hit: %d / %d; total hits=%d", sum(lens > 0), length(lens), sum(lens)))
+hits <- suppressWarnings(do.call(c, lapply(hits_list, function(x) if (is(x, "GRanges")) x else as(x, "GRanges"))))
+if (!is(hits, "GRanges")) hits <- unlist(GRangesList(hits_list), use.names = FALSE)
+if (length(hits) == 0L) { warning("Sin matches."); print(warnings()); bpstop(BPP); quit(save="no", status=0) }
+
+agg <- aggregateMatches(hits, keepSiteInfo = TRUE)
+
+## Guardar crudos
+hits_dt_raw <- as.data.table(as.data.frame(hits))
+fwrite(hits_dt_raw, file.path(OUTDIR, sprintf("hits_%s.tsv.gz", SPECIES)), sep="\t")
+fwrite(as.data.table(agg), file.path(OUTDIR, sprintf("agg_%s.tsv.gz", SPECIES)), sep="\t")
+
+## =======================
+## 4) Estadística — sitios (IHW o BH estratos) y pares (ACAT/HMP)
+## =======================
+hits_dt <- copy(hits_dt_raw)
+if (!"type" %in% names(hits_dt)) hits_dt[, type := NA_character_]
+if ("log_kd" %in% names(hits_dt)) setnames(hits_dt, "log_kd", "logKd")
+stopifnot("logKd" %in% names(hits_dt))
+hits_dt[, transcript := as.character(seqnames)]
+
+## p_site empíricos sobre canónicos
+hits_dt[, canonical := grepl("8mer|7mer", type, ignore.case=TRUE)]
+hits_can <- hits_dt[canonical == TRUE & is.finite(logKd)]
+if (nrow(hits_can) == 0L) stop("No hay sitios canónicos con logKd finito.")
+hits_can[, T := -logKd]
+Fhat <- ecdf(hits_can$T)
+hits_can[, p_site := pmax(1 - Fhat(T) + 1e-12, 1e-12)]
+
+## Sitios: IHW (recomendado) o BH estratificado
+if (USE_IHW_SITES) {
+  hits_can[, pos_pct := pmin(0.999, pmax(0.001, end / tx_width[transcript]))]
+  ihw_res <- IHW::ihw(pvalues = hits_can$p_site, covariates = hits_can$pos_pct, alpha = ALPHA)
+  hits_can[, q_site := IHW::adj_pvalues(ihw_res)]
+  site_method_tag <- "IHW"
+} else {
+  hits_can[, seed8 := as.integer(grepl("8mer", type, ignore.case=TRUE))]
+  hits_can[, stratum := ifelse(seed8==1, "8mer", "7mer")]
+  hits_can[, q_site := NA_real_]
+  for (s in unique(hits_can$stratum)) {
+    ii <- which(hits_can$stratum == s)
+    hits_can$q_site[ii] <- p.adjust(hits_can$p_site[ii], method = "BH")
+  }
+  site_method_tag <- "BH_stratified"
+}
+hits_sig <- hits_can[q_site < ALPHA]
+fwrite(hits_sig, file.path(OUTDIR, sprintf("sites_SIGNIFICANT_%s_FDR%.02f.tsv.gz", site_method_tag, ALPHA)), sep="\t")
+
+## --------- ACAT en base R (sin paquete) ----------
+acat_p <- function(p, w = NULL) {
+  # Implementación estable de Aggregated Cauchy p-value
+  p <- as.numeric(p)
+  p <- p[is.finite(p) & p > 0 & p < 1]
+  k <- length(p)
+  if (k == 0) return(NA_real_)
+  if (k == 1) return(p)
+  
+  # Pesos
+  if (is.null(w)) w <- rep(1/k, k) else {
+    w <- as.numeric(w); if (length(w) != k) stop("acat_p: longitud de w != longitud de p")
+    if (any(w < 0)) stop("acat_p: pesos negativos")
+    s <- sum(w); if (!is.finite(s) || s <= 0) stop("acat_p: suma de pesos no positiva")
+    w <- w / s
+  }
+  
+  # Salvaguardas numéricas (evitar tan() infinito)
+  eps <- 1e-15
+  p <- pmax(pmin(p, 1 - eps), eps)
+  
+  Tsum <- sum(w * tan((0.5 - p) * pi))
+  # p_ACAT = 0.5 - atan(Tsum)/pi
+  p_acat <- 0.5 - atan(Tsum) / pi
+  
+  # Cotas por estabilidad
+  if (!is.finite(p_acat)) {
+    p_acat <- ifelse(Tsum > 0, 1e-300, 1 - 1e-300)
+  } else {
+    p_acat <- min(max(p_acat, 0), 1)
+  }
+  return(p_acat)
+}
+
+## Pares: combinación robusta (ACAT in-base R o HMP) + FDR
+combine_pair_p_hmp <- function(ps) {
+  ps <- ps[is.finite(ps) & ps > 0 & ps < 1]
+  if (!length(ps)) return(NA_real_)
+  harmonicmeanp::p.hmp(ps, L = length(ps))  # FWER; más conservador
+}
+
+if (toupper(PAIR_COMB_METHOD) == "HMP") {
+  pair_p <- hits_can[, .(p_pair = combine_pair_p_hmp(p_site)),  by = .(miRNA, transcript)]
+  pair_tag <- "HMP"
+} else {
+  pair_p <- hits_can[, .(p_pair = acat_p(p_site)), by = .(miRNA, transcript)]
+  pair_tag <- "ACATbaseR"
+}
+
+pair_p[, q_pair := p.adjust(p_pair, method = ADJUST_PAIRS_WITH)]
+pairs_sig <- pair_p[q_pair < ALPHA]
+fwrite(pair_p,   file.path(OUTDIR, sprintf("pairs_ALL_%s.tsv.gz", pair_tag)), sep="\t")
+fwrite(pairs_sig,file.path(OUTDIR, sprintf("pairs_SIGNIFICANT_%s_%s_FDR%.02f.tsv.gz",
+                                           pair_tag, ADJUST_PAIRS_WITH, ALPHA)), sep="\t")
+
+## (Opcional) Permutación extra para p empíricos por par (sobre estadístico Fisher)
+if (isTRUE(DO_PERMUTATION)) {
+  set.seed(1)
+  stat_obs <- hits_can[, .(stat = -2*sum(log(p_site))), by=.(miRNA, transcript)]
+  perm_stats <- vector("list", B_PERM)
+  for (b in seq_len(B_PERM)) {
+    perm_dt <- hits_can[, .(miRNA_perm = sample(miRNA)), by=.(transcript)]
+    setkey(perm_dt, transcript); setkey(hits_can, transcript)
+    tmp <- hits_can[perm_dt, nomatch=0L]
+    perm_stats[[b]] <- tmp[, .(stat = -2*sum(log(p_site))), by=.(miRNA=miRNA_perm, transcript)]
+  }
+  library(data.table)
+  all_perm <- rbindlist(perm_stats)[, .(stat_perm = stat), by=.(miRNA, transcript)]
+  setkey(all_perm, miRNA, transcript); setkey(stat_obs, miRNA, transcript)
+  res_emp <- stat_obs[all_perm, allow.cartesian=TRUE][
+    , .(stat_obs = stat_obs, ge = sum(stat_perm >= stat_obs, na.rm=TRUE), B = .N), by=.(miRNA, transcript)]
+  res_emp[, p_emp := (ge + 1) / (B + 1)]
+  res_emp[, q_emp := p.adjust(p_emp, method="BH")]
+  pairs_sig_emp <- res_emp[q_emp < ALPHA]
+  fwrite(res_emp,      file.path(OUTDIR, "pairs_ALL_PERM.tsv.gz"), sep="\t")
+  fwrite(pairs_sig_emp,file.path(OUTDIR, sprintf("pairs_SIGNIFICANT_PERM_FDR%.02f.tsv.gz", ALPHA)), sep="\t")
+}
+
+## =======================
+## 5) Jerárquico (Benjamini–Bogomolov)
+## =======================
+m_pairs <- nrow(pair_p); S_pairs <- nrow(pairs_sig)
+if (S_pairs > 0) {
+  alpha_in <- ALPHA * S_pairs / max(1, m_pairs)
+  hits_sel <- merge(hits_can, pairs_sig[,.(miRNA, transcript)], by=c("miRNA","transcript"))
+  site_inferences <- hits_sel[, {
+    qloc <- p.adjust(p_site, method="BH")  # dentro de cada par
+    .(start=start, end=end, type=type, p_site=p_site, q_site_in=qloc)
+  }, by=.(miRNA, transcript)]
+  site_inferences[, sig_within_pair := (q_site_in < alpha_in)]
+  fwrite(site_inferences, file.path(OUTDIR, sprintf("sites_WITHIN_SELECTED_PAIRS_BB_alphaIn=%.4f.tsv.gz", alpha_in)), sep="\t")
+}
+
+## =======================
+## 6) Figuras (pares significativos)
+## =======================
+sig_miRNAs <- unique(pairs_sig$miRNA)
+if (length(sig_miRNAs) > 0) {
+  if (length(sig_miRNAs) > 12) {
+    freq <- pairs_sig[, .N, by=miRNA][order(-N)]
+    sig_miRNAs <- freq$miRNA[1:12]
+  }
+  for (m in sig_miRNAs) {
+    if (!is.null(kmods[[m]])) {
+      p <- plotKdModel(kmods[[m]], what="both", n=10)
+      if ("ggplot" %in% class(p)) p <- p + ggtitle(sprintf("%s (significant targets present; FDR<%.02f)", m, ALPHA))
+      safe_m <- gsub("[^A-Za-z0-9_.-]", "_", m)
+      ggsave(file.path(vizdir, sprintf("01_KdModel_%s.png", safe_m)), plot=p, width=8, height=5.5, dpi=300)
+      ggsave(file.path(vizdir, sprintf("01_KdModel_%s.pdf", safe_m)), plot=p, width=8, height=5.5, device=cairo_pdf)
+    }
+  }
+} else message("No hay miRNAs con pares significativos para KdModels.")
+
+if (nrow(hits_sig) > 0) {
+  setorder(hits_sig, q_site, -T)
+  hits_ix <- as.data.table(as.data.frame(hits))[ , .(idx = .I, miRNA, seqnames = as.character(seqnames), start, end) ]
+  hits_sig[, site_key := paste(miRNA, transcript, start, end, sep=":")]
+  sig_sites <- hits_sig[!duplicated(site_key)][1:min(20, .N)]
+  for (i in seq_len(nrow(sig_sites))) {
+    row <- sig_sites[i]
+    idx <- hits_ix[miRNA == row$miRNA & seqnames == row$transcript & start == row$start & end == row$end, idx][1]
+    if (length(idx) == 1 && !is.na(idx) && !is.null(kmods[[row$miRNA]])) {
+      gr <- hits[idx]
+      p  <- viewTargetAlignment(m = gr, miRNA = kmods[[row$miRNA]], seqs = tx, min3pMatch = 3L, outputType = "ggplot")
+      if ("ggplot" %in% class(p)) {
+        tag <- sprintf("%s_on_%s_%s-%s_qsite=%.3g", row$miRNA, row$transcript, row$start, row$end, row$q_site)
+        tag <- gsub("[^A-Za-z0-9_.-]", "_", tag)
+        ggsave(file.path(vizdir, sprintf("02_align_%02d_%s.png", i, tag)), plot=p, width=9, height=3.2, dpi=300)
+        ggsave(file.path(vizdir, sprintf("02_align_%02d_%s.pdf", i, tag)),  plot=p, width=9, height=3.2, device=cairo_pdf)
+      }
+    }
+  }
+} else message("No hay sitios significativos (q_site < ALPHA) para alinear.")
+
+agg_dt <- as.data.table(agg)
+score_col <- if ("repression" %in% names(agg_dt)) "repression" else "score"
+if (nrow(pairs_sig) > 0) {
+  setkey(pairs_sig, miRNA, transcript); setkey(agg_dt, miRNA, transcript)
+  agg_sig <- agg_dt[pairs_sig, nomatch=0L]
+  if (nrow(agg_sig) > 0) {
+    mat <- dcast(agg_sig, miRNA ~ transcript, value.var = score_col, fill = 0)
+    rn <- mat$miRNA; mat$miRNA <- NULL; m <- as.matrix(mat); rownames(m) <- rn
+    nonzero_rows <- rowSums(m != 0) > 0; nonzero_cols <- colSums(m != 0) > 0
+    m <- m[nonzero_rows, nonzero_cols, drop=FALSE]
+    if (nrow(m) >= 2 && ncol(m) >= 2) {
+      topR <- min(30L, nrow(m)); topC <- min(40L, ncol(m))
+      vr <- matrixStats::rowVars(m); vc <- matrixStats::colVars(m)
+      m  <- m[order(vr, decreasing=TRUE)[seq_len(topR)], order(vc, decreasing=TRUE)[seq_len(topC)], drop=FALSE]
+      m_z <- t(scale(t(m))); m_z[is.na(m_z)] <- 0
+      cap <- 2; m_z[m_z > cap] <- cap; m_z[m_z < -cap] <- -cap
+      rownames(m_z) <- gsub("^hsa-", "", rownames(m_z))
+      rownames(m_z) <- gsub("-(3p|5p)$", "", rownames(m_z))
+      colnames(m_z) <- substr(colnames(m_z), 1, 24)
+      pal <- colorRampPalette(c("#313695","#4575B4","#74ADD1","#ABD9E9","#E0F3F8",
+                                "#FFFFBF","#FEE090","#FDAE61","#F46D43","#D73027","#A50026"))
+      main_t <- sprintf("Significant miRNA interactions with predicted lncRNAs (row z-scores; FDR<%.02f)", ALPHA)
+      png(file.path(vizdir, "03_heatmap_repression_SIGNIFICANT.png"), width=2400, height=1600, res=300)
+      pheatmap(m_z, color=pal(255), breaks=seq(-cap, cap, length.out=256),
+               cluster_rows=TRUE, cluster_cols=TRUE, border_color="grey85", legend=TRUE,
+               fontsize_row=8, fontsize_col=8, angle_col=45, main=main_t)
+      dev.off()
+      pdf(file.path(vizdir, "03_heatmap_repression_SIGNIFICANT.pdf"), width=12, height=8.2)
+      pheatmap(m_z, color=pal(255), breaks=seq(-cap, cap, length.out=256),
+               cluster_rows=TRUE, cluster_cols=TRUE, border_color="grey85", legend=TRUE,
+               fontsize_row=8, fontsize_col=8, angle_col=45, main=main_t)
+      dev.off()
+    } else message("Tras FDR, la matriz no alcanza 2×2 para heatmap.")
+  } else message("No hay valores agregados para los pares significativos.")
+} else message("No hay pares significativos (q_pair < ALPHA).")
+
+## =======================
+## 7) QC
+## =======================
+ws <- warnings()
+if (!is.null(ws)) { cat("\n---- first warnings ----\n"); print(head(ws)) }
+
+n_sites_can   <- nrow(hits_can)
+n_sites_sig   <- nrow(hits_sig)
+n_pairs_test  <- nrow(pair_p)
+n_pairs_sig   <- nrow(pairs_sig)
+message(sprintf("[QC] Sitios canónicos: %d | Sitios q<%.2f (%s): %d",
+                n_sites_can, ALPHA, site_method_tag, n_sites_sig))
+message(sprintf("[QC] Pares probados: %d | Pares q<%.2f (%s + %s): %d",
+                n_pairs_test, ALPHA, pair_tag, ADJUST_PAIRS_WITH, n_pairs_sig))
+
+if (exists("site_inferences")) {
+  n_sig_sites_within <- sum(site_inferences$sig_within_pair, na.rm=TRUE)
+  message(sprintf("[QC] Jerárquico (BB): pares=%d | sitios dentro de pares=%d (alpha_in=%.4f)",
+                  n_pairs_sig, n_sig_sites_within, if (exists("alpha_in")) alpha_in else NA_real_))
+}
+
+## =======================
+## Cierre
+## =======================
+bpstop(BPP)
+message(sprintf("✅ Listo. Sitios significativos: %d; Pares significativos: %d. Salida en: %s",
+                nrow(hits_sig), nrow(pairs_sig), normalizePath(OUTDIR)))

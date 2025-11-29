@@ -1,0 +1,36 @@
+
+ENST00000379565.9
+          5895                                                                                                                                            6022
+             |                                                                                                                                            |
+5'-AGA...GAAG   C     U     -      GA------    A   -   -   -    UGUCC    -   U U   C   A    CAG     GAA      GAA-- A   CAA       AA  -   G    A   UAUUC    GAAA...GCA-3'
+             UGA UGCUG UGGGG CCAGGG        CAUC UGG GAG GUG GGGC     AGUU AGC G GCC UGC CCUU   CCCAG   AGAUUU     C GAG   AGGCUUC  GA GAG GCAG AUG     GGCA
+             ||| ||||| ||||: |||:::        |||| ||| ||| ||: ||||     |||| ||| | :|| ::| ||:|   |||||   |||:||     | |||   +++++++  || :|| :||| ||:     ||||
+             ACU ACGAC ACCCU GGUUUU        GUAG ACC CUC CAU CCCG     UCAA UCG C UGG GUG GGGA   GGGUC   UCUGAA     G CUC   UCCGGAG  CU UUC UGUC UAU     CCGU
+3'-CAU...CGAA   -     U     A      AGUGUUGA    -   A   G   U    -----    C   U U   U   A    CAA     ACG      GGUAG A   CG-       G-  A   G    C   -----    ACAC...CUA-5'
+             |                                                                                                                                            |
+           153                                                                                                                                            26
+TCONS_00137682
+
+interaction seq1   = 5895..6022
+interaction seq2   = 26..153
+
+interaction energy = -22.55 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -103.7
+  + E(dangleLeft)  = -0.51
+  + E(dangleRight) = -0.78
+  + E(endLeft)     = 0.5
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -99.89
+  + ED(seq1)       = 38.93
+    : Pu(seq1)     = 3.6959e-28
+  + ED(seq2)       = 38.41
+    : Pu(seq2)     = 8.59293e-28
+
+seed seq1   = 5991..5997
+seed seq2   = 46..52
+seed energy = -5.32
+seed ED1    = 3.9
+seed ED2    = 1.45
+seed Pu1    = 0.00178583
+seed Pu2    = 0.0951148

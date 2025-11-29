@@ -1,0 +1,36 @@
+
+ENST00000375249.5
+           659                                                                                                                                    774
+             |                                                                                                                                    |
+5'-AGG...UUGA      G   AG           --   A  CGC   A    C   GG--   C       A-------------   A  UUUUGAC       AC      G AAA C A    UUG    AUAU-      AAUG...UGA-3'
+             GAGGAC UGG  GCCCGAGAGGG  GGU UG   GGC GAGG AGA    UGG CCUGGGA              CAG GU       GCUUUUG  CAGAGA G   G G GAAU   AAAG     GGUGGG
+             |||||| :||  +++++++++++  |:| ||   ||| |||| |||    :|| +++++++              ||| |:       :|:|::|  |||||| :   | | |||:   ||||     |||||:
+             CUCCUG GCC  CGGGUUCUUCC  CUA AC   CCG CUCC UCU    GCC GGGCCUU              GUC CG       UGGAGGC  GUCUCU U   C C CUUG   UUUC     CCACCU
+    3'-CUCCAG      G   GA           GU   G  CUC   C    -   AAUG   A       CCAUCCAAGCCCAC   C  CACCCCU       GC      G GAG - C    ---    GAGAU      GCAG...CUC-5'
+             |                                                                                                                                    |
+           303                                                                                                                                    175
+TCONS_00125660
+
+interaction seq1   = 659..774
+interaction seq2   = 175..303
+
+interaction energy = -26.72 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -101
+  + E(dangleLeft)  = -0.9
+  + E(dangleRight) = -0.8
+  + E(endLeft)     = 0
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -98.1
+  + ED(seq1)       = 32.53
+    : Pu(seq1)     = 1.19542e-23
+  + ED(seq2)       = 38.85
+    : Pu(seq2)     = 4.20816e-28
+
+seed seq1   = 671..677 | 675..681 | 709..715
+seed seq2   = 285..291 | 281..287 | 244..250
+seed energy = -1.38 | -1.29 | -0.71
+seed ED1    = 4.52 | 4.36 | 3.85
+seed ED2    = 6.1 | 2.09 | 5.11
+seed Pu1    = 0.000653059 | 0.000846637 | 0.00193674
+seed Pu2    = 5.03031e-05 | 0.0336719 | 0.000250729

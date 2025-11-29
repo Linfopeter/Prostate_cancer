@@ -1,0 +1,36 @@
+
+ENST00000375249.5
+           659                                                                                                                                    774
+             |                                                                                                                                    |
+5'-AGG...UUGA      G   AG           --   A  CGC   A    C   GG--   -   ------------    AA   A  UUUUGAC       AC      G AAA C A    UUG    AUAU-      AAUG...UGA-3'
+             GAGGAC UGG  GCCCGAGAGGG  GGU UG   GGC GAGG AGA    UGG CCC            UGGG  CAG GU       GCUUUUG  CAGAGA G   G G GAAU   AAAG     GGUGGG
+             |||||| :||  +++++++++++  |:| ||   ||| |||| |||    :|| |||            :|||  ||| |:       :|:|::|  |||||| :   | | |||:   ||||     |||||:
+             CUCCUG GCC  CGGGUUCUUCC  CUA AC   CCG CUCC UCU    GCC GGG            GCCC  GUC CG       UGGAGGC  GUCUCU U   C C CUUG   UUUC     CCACCU
+    3'-CUCCAG      G   GA           GU   G  CUC   C    -   AAUG   A   CCUUCCAUCCAA    AC   C  CACCCCU       GC      G GAG - C    ---    GAGAU      GCAG...CUC-5'
+             |                                                                                                                                    |
+           303                                                                                                                                    175
+TCONS_00125660
+
+interaction seq1   = 659..774
+interaction seq2   = 175..303
+
+interaction energy = -28.32 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -102.6
+  + E(dangleLeft)  = -0.9
+  + E(dangleRight) = -0.8
+  + E(endLeft)     = 0
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -99.7
+  + ED(seq1)       = 32.53
+    : Pu(seq1)     = 1.19542e-23
+  + ED(seq2)       = 38.85
+    : Pu(seq2)     = 4.20816e-28
+
+seed seq1   = 671..677 | 675..681
+seed seq2   = 285..291 | 281..287
+seed energy = -1.38 | -1.29
+seed ED1    = 4.52 | 4.36
+seed ED2    = 6.1 | 2.09
+seed Pu1    = 0.000653059 | 0.000846637
+seed Pu2    = 5.03031e-05 | 0.0336719

@@ -1,0 +1,36 @@
+
+ENST00000267163.6
+          2501                                                                                                                                                       2640
+             |                                                                                                                                                       |
+5'-AGU...UUGU     A   -       U  UCGAA  - - -     AGUU  -   GUU    -  -    G  U  UGGAGGGA    -      UU    C   AAG--- G - -      AA   U  G AGGU    CA      ACAAAA  G   CCAA...UAA-3'
+             CACCA UAC CUCACAU CC     GC C C UUACA    UC CUA   CACC CU UACG AU CC        ACAU CUAUAU  CACC CUG      A U C CAUAUA  AUU CA A    CUGC  ACACCA      AU ACU
+             ||||| ||| +++++++ ||     :| | | :||||    :| |||   |||| || :||: |: ||        |||: |||:|:  |||| ||:      | | | ||:|:|  ||| || |    ||:|  ||||||      |: |||
+             GUGGU AUG GAGUGUG GG     UG G G GAUGU    GG GAU   GUGG GA GUGU UG GG        UGUG GAUGUG  GUGG GAU      U A G GUGUGU  UAA GU U    GAUG  UGUGGU      UG UGA
+3'-UCC...GUGU     G   U       U  UAAUG  U U U     GUGU  U   GU-    U  U    G  U  UAAUGUG-    U      U-    U   GUGUGG G U U      GG   U  G GUGU    UG      GAUGUG  G   UACG...UGC-5'
+             |                                                                                                                                                       |
+           606                                                                                                                                                       457
+TCONS_00161805
+
+interaction seq1   = 2501..2640
+interaction seq2   = 457..606
+
+interaction energy = -57.62 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -84.5
+  + E(dangleLeft)  = 0
+  + E(dangleRight) = 0
+  + E(endLeft)     = 0
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -79.9
+  + ED(seq1)       = 20.49
+    : Pu(seq1)     = 3.64407e-15
+  + ED(seq2)       = 1.79
+    : Pu(seq2)     = 0.0547854
+
+seed seq1   = 2510..2516
+seed seq2   = 590..596
+seed energy = -8.46
+seed ED1    = 0.16
+seed ED2    = 0.38
+seed Pu1    = 0.771356
+seed Pu2    = 0.539797

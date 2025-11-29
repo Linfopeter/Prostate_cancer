@@ -1,0 +1,36 @@
+
+ENST00000357430.8
+           757                                                                                                                                                     895
+             |                                                                                                                                                     |
+5'-AGA...UGAA   UU-           AU-- AA      CC   U    AAAUU--      AAGGU   UCUU        UAAU       C----     AAG--  GU      UC-    CUUUAA       AAUGGAUUA     G       AGAA...AAA-3'
+             GUU   AAAUGAGGAAG    G  GUACAA  AAA GGAA       UUUAAA     UAU    GGACAGUA    UGGCUUU     CUAUG     AU  CUUUGU   GAGC      UUUUGGA         CAGAU UUGGGUC
+             |||   +++++++++++    |  :|||||  ||| ||||       ||||||     ||:    ++++++++    +++++++     |||||     ||  ||||||   :|:|      +++++++         ||:|| +++++++
+             CAA   UUUACUCCUUU    C  UAUGUU  UUU CCUU       AAAUUU     AUG    UUUGUCAU    ACCGAGA     GAUAC     UA  GAAACA   UUUG      GAAACCU         GUUUA GACCCGG
+3'-CCU...UAUA   UCC           AAGU CA      --   U    CGACUCU      -----   ----        ----       UCACA     AUAGG  AU      UCA    AUCAAA       C--------     G       ACUC...UUC-5'
+             |                                                                                                                                                     |
+           260                                                                                                                                                     133
+TCONS_00651951
+
+interaction seq1   = 757..895
+interaction seq2   = 133..260
+
+interaction energy = -21.81 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -64.1
+  + E(dangleLeft)  = -1.5
+  + E(dangleRight) = -0.78
+  + E(endLeft)     = 0
+  + E(endRight)    = 0
+    : E(hybrid)    = -62.28
+  + ED(seq1)       = 23.81
+    : Pu(seq1)     = 1.66774e-17
+  + ED(seq2)       = 16.66
+    : Pu(seq2)     = 1.82147e-12
+
+seed seq1   = 764..770 | 765..771 | 763..769 | 766..772 | 762..768 | 829..835 | 867..873 | 889..895 | 818..824 | 817..823
+seed seq2   = 246..252 | 245..251 | 247..253 | 244..250 | 248..254 | 192..198 | 147..153 | 133..139 | 199..205 | 200..206
+seed energy = -8.02 | -7.82 | -7.35 | -6.97 | -4.73 | -3.58 | -2.61 | -2.56 | -1.77 | -0.95
+seed ED1    = 1.13 | 1.18 | 0.92 | 1.16 | 0.82 | 3.2 | 2.05 | 4.59 | 2.76 | 2.89
+seed ED2    = 0.61 | 0.56 | 0.72 | 0.57 | 0.71 | 1.9 | 1.47 | 2.72 | 1.99 | 2.49
+seed Pu1    = 0.159859 | 0.147403 | 0.224758 | 0.152264 | 0.264351 | 0.00556031 | 0.0359297 | 0.000582943 | 0.011354 | 0.0091948
+seed Pu2    = 0.371672 | 0.403081 | 0.310919 | 0.396594 | 0.316005 | 0.0458303 | 0.0920778 | 0.0121153 | 0.0396035 | 0.0175956

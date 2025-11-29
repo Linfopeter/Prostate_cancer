@@ -1,0 +1,36 @@
+
+ENST00000370475.9
+          3573                                                                                                                   3682
+             |                                                                                                                   |
+5'-CUC...UUUU    -     G    UUUU  -         A  AA       AA  G   ACAA          ----   U    A      AAAAGU  U   AAA G      -  A      AUGU...AAA-3'
+             CAUU UUACA UUAC    CC UUGCAUACA AC  GCAUAUA  AU GCA    ACUGCACAUG    AUU CACA AUAUUA      CU UUA   A UAUUGC CA ACAUUA
+             ||:: :|||| |:||    || +++++++++ ||  +++++++  |: :||    ++++++++++    ||| |||| |:|:||      |: :||   | :|:|:| || |||::|
+             GUGG GAUGU AGUG    GG AAUGUGUGU UG  UGUGUGU  UG UGU    UGAUGUGUGU    UAA GUGU UGUGAU      GG GAU   U GUGAUG GU UGUGGU
+3'-UCC...GUGU    U     G    UGU-  U         G  A-       GG  A   GUGG          GUGG   U    G      GUGUGU  U   GUG G      U  G      AAUG...UGU-5'
+             |                                                                                                                   |
+           744                                                                                                                   630
+TCONS_00161804
+
+interaction seq1   = 3573..3682
+interaction seq2   = 630..744
+
+interaction energy = -48.92 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -67.7
+  + E(dangleLeft)  = -0.52
+  + E(dangleRight) = -0.76
+  + E(endLeft)     = 0
+  + E(endRight)    = 0.5
+    : E(hybrid)    = -64.38
+  + ED(seq1)       = 13.42
+    : Pu(seq1)     = 3.4955e-10
+  + ED(seq2)       = 2.04
+    : Pu(seq2)     = 0.0365175
+
+seed seq1   = 3626..3632 | 3627..3633 | 3628..3634 | 3595..3601 | 3594..3600 | 3629..3635 | 3593..3599 | 3607..3613
+seed seq2   = 685..691 | 684..690 | 683..689 | 715..721 | 716..722 | 682..688 | 717..723 | 704..710
+seed energy = -8.36 | -7.4 | -5.82 | -5.49 | -5.33 | -4.21 | -3.4 | -3.27
+seed ED1    = 1.28 | 1.28 | 1.24 | 1.59 | 1.16 | 1.56 | 1.17 | 1.99
+seed ED2    = 0.34 | 0.32 | 0.32 | 0.45 | 0.35 | 0.3 | 0.54 | 0.56
+seed Pu1    = 0.125326 | 0.125326 | 0.133729 | 0.0757872 | 0.152264 | 0.0795675 | 0.149814 | 0.0396035
+seed Pu2    = 0.575992 | 0.59499 | 0.59499 | 0.481842 | 0.566722 | 0.614615 | 0.416376 | 0.403081

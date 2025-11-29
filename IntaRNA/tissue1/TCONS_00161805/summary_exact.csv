@@ -1,0 +1,4 @@
+target_id,query_id,E_exact,start1,end1,start2,end2,qRegion,tRegion,heuristic_csv,exact_csv
+ENST00000244869.3,TCONS_00161805,-65.49,54,172,1063,1211,1038-1236,29-197,heuristic_Homo_sapiens_ENST00000244869_3_sequence.csv,exact_Homo_sapiens_ENST00000244869_3_sequence.csv
+ENST00000267163.6,TCONS_00161805,-57.83,2492,2628,469,617,432-631,2476-2665,heuristic_Homo_sapiens_ENST00000267163_6_sequence.csv,exact_Homo_sapiens_ENST00000267163_6_sequence.csv
+ENST00000370982.4,TCONS_00161805,-49.34,2057,2196,806,953,788-986,2025-2213,heuristic_Homo_sapiens_ENST00000370982_4_sequence.csv,exact_Homo_sapiens_ENST00000370982_4_sequence.csv

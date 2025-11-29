@@ -1,0 +1,36 @@
+
+ENST00000272091.8
+          1957                                                          2010
+             |                                                          |
+5'-AGA...CCGG       CCA         CU   CC-     A--  A   G ---        GC    ACCA...AUA-3'
+             GUUCAUG   UUCUCCUGC  CAG   UCCCC   GU GCU G   GACUACAG  UCCC
+             +++++++   +++++++++  |||   |||||   || ||: |   ++++++++  ||||
+             CGAGUAC   GAGGGGACG  GUC   AGGGG   CA CGG C   UUGAUGUC  AGGG
+3'-GUG...UCGA       C--         AC   CUA     ACC  -   G AGU        GA    ACCC...CCG-5'
+             |                                                          |
+           170                                                          114
+TCONS_00629693
+
+interaction seq1   = 1957..2010
+interaction seq2   = 114..170
+
+interaction energy = -21.27 kcal/mol
+  = E(init)        = 4.1
+  + E(loops)       = -60.8
+  + E(dangleLeft)  = -0.34
+  + E(dangleRight) = -0.71
+  + E(endLeft)     = 0
+  + E(endRight)    = 0
+    : E(hybrid)    = -57.75
+  + ED(seq1)       = 16.43
+    : Pu(seq1)     = 2.64541e-12
+  + ED(seq2)       = 20.05
+    : Pu(seq2)     = 7.44108e-15
+
+seed seq1   = 1969..1975 | 1968..1974 | 1967..1973 | 1957..1963 | 1998..2004 | 1997..2003
+seed seq2   = 154..160 | 155..161 | 156..162 | 164..170 | 120..126 | 121..127
+seed energy = -6.87 | -5.62 | -4.06 | -3.18 | -2.02 | -0.32
+seed ED1    = 1.73 | 1.63 | 0.89 | 2.27 | 2.32 | 3.07
+seed ED2    = 2.53 | 3.16 | 2.12 | 1.46 | 3.44 | 2.77
+seed Pu1    = 0.0603871 | 0.0710248 | 0.235969 | 0.0251437 | 0.0231844 | 0.00686601
+seed Pu2    = 0.0164899 | 0.00593315 | 0.0320722 | 0.093584 | 0.00376688 | 0.0111712
