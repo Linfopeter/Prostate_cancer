@@ -1,0 +1,11 @@
+gene	kegg_gene_id	pathway_id	pathway_name
+CHST14	hsa:113189	hsa00532	Glycosaminoglycan biosynthesis - chondroitin sulfate / dermatan sulfate - Homo sapiens (human)
+CYP2D6	hsa:1565	hsa00980	Metabolism of xenobiotics by cytochrome P450 - Homo sapiens (human)
+CYP2D6	hsa:1565	hsa00982	Drug metabolism - cytochrome P450 - Homo sapiens (human)
+CYP2D6	hsa:1565	hsa01522	Endocrine resistance - Homo sapiens (human)
+CYP2D6	hsa:1565	hsa04726	Serotonergic synapse - Homo sapiens (human)
+NEIL1	hsa:79661	hsa03410	Base excision repair - Homo sapiens (human)
+OSCAR	hsa:126014	hsa04380	Osteoclast differentiation - Homo sapiens (human)
+ST3GAL4	hsa:6484	hsa00601	Glycosphingolipid biosynthesis - lacto and neolacto series - Homo sapiens (human)
+ST3GAL4	hsa:6484	hsa01100	Metabolic pathways - Homo sapiens (human)
+TRIP6	hsa:7205	hsa04621	NOD-like receptor signaling pathway - Homo sapiens (human)
